@@ -5,6 +5,7 @@ const handler = {
 	get(target, prop, receiver) {
 		return target[prop] || function () {
 			// console.log(prop);
+			
 		};
 	}
 };
