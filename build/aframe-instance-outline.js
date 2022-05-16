@@ -141,7 +141,11 @@
 		console.log(shader);
 
 		shader.vertexShader = shader.vertexShader.replace('void main() {', `
+	#include <normal_pars_vertex>
 	flat varying int instanceID;
+	#ifdef FLAT_SHADED
+		varying vec3 vNormal;
+	#endif
 	#ifdef USE_ENVMAP
 		#ifndef ENV_WORLDPOS
 			varying vec3 vWorldPosition;
@@ -154,6 +158,14 @@
 
 		shader.vertexShader = shader.vertexShader
 		.replace('#include <project_vertex>',`
+	#include <beginnormal_vertex>
+	#include <morphnormal_vertex>
+	#include <skinnormal_vertex>
+	#include <defaultnormal_vertex>
+	#include <normal_vertex>
+	#ifdef FLAT_SHADED
+		vNormal = normalize( transformedNormal );
+	#endif
 	vec4 mvPosition = vec4( transformed, 1.0 );
 	#ifdef USE_INSTANCING
 		mvPosition = instanceMatrix * mvPosition;
@@ -165,6 +177,9 @@
 	`);
 
 		shader.fragmentShader = shader.fragmentShader.replace('void main() {', `
+	#ifdef FLAT_SHADED
+		varying vec3 vNormal;
+	#endif
 	flat varying int instanceID;
 	uniform mat4 modelViewMatrix;
 	#ifdef USE_ENVMAP
@@ -183,7 +198,6 @@
 	vec4 posInView = modelViewMatrix * vec4(vWorldPosition, 1.0);
 	posInView /= posInView[3];
 	vec3 VinView = normalize(-posInView.xyz);
-	gl_FragColor.rgb = vec3(1.,1.,1.);
 	gl_FragColor.a = float(instanceID);
 }`);
 	}

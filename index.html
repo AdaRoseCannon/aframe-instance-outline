@@ -101,9 +101,8 @@
 		<a-entity hide-on-enter-ar position="0 -0.2 0" environment="lighting:none;preset:yavapai;skyType:atmosphere;">
 		</a-entity>
 
-		<a-torus-knot outline="color:black;offset:2;" position="0 1.5 -1" radius="0.1" radius-tubular="0.02" material="shader:phong;reflectivity:0.3;" id="knot">
-			<a-sphere radius="0.2" position="0.4 0 0"></a-sphere>
-		</a-torus-knot>
+		<a-sphere outline radius="0.2" position="0.4 1.5 -1" material="shader:flat;color:red;"></a-sphere>
+		<a-torus-knot animation="property: rotation; to: 0 0 360; loop: true; dur: 10000; easing: linear;" outline="color:black;offset:2;" position="0 1.5 -1" radius="0.1" radius-tubular="0.02" material="shader:flat;color:yellow;" id="knot"></a-torus-knot>
 	</a-scene>
 </body>
 
