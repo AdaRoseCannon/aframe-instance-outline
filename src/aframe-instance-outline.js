@@ -79,13 +79,15 @@ export function makeOutline(object) {
 			(o instanceof THREE.Mesh) &&
 			!(o instanceof THREE.InstancedMesh || o instanceof InstancedSkinnedMesh)
 		) {
+			const mat = new THREE.MeshBasicMaterial({
+				color: o.material.color,
+				onBeforeCompile: onBeforeCompile,
+				transparent: true,
+				side: THREE.DoubleSide
+			});
 			const newMesh = o instanceof THREE.SkinnedMesh ?
-				new InstancedSkinnedMesh(o.geometry, o.material, 2):
-				new THREE.InstancedMesh(o.geometry, o.material, 2);
-
-			o.material.onBeforeCompile = onBeforeCompile;
-			o.material.transparent = true;
-			o.material.side = THREE.DoubleSide;
+				new InstancedSkinnedMesh(o.geometry, mat, 2):
+				new THREE.InstancedMesh(o.geometry, mat, 2);
 
 			o.updateMatrixWorld();
 			newMesh.setMatrixAt(0, tempMatrix);
