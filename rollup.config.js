@@ -10,6 +10,7 @@ export default [
 		external: ['three'],
 		output: {
 			format: "iife",
+			name: 'AFRAME_OUTLINE',
 			sourcemap: true,
 			file: 'build/aframe-instance-outline.js',
 			globals: {
@@ -31,6 +32,7 @@ export default [
 		output: {
 			format: "iife",
 			sourcemap: true,
+			name: 'AFRAME_OUTLINE',
 			file: 'build/aframe-instance-outline.min.js',
 			globals: {
 				three: 'THREE'
