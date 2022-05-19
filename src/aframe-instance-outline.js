@@ -12,13 +12,6 @@ export function onBeforeCompile( shader ) {
 	#ifdef FLAT_SHADED
 		varying vec3 vNormal;
 	#endif
-	#ifdef USE_ENVMAP
-		#ifndef ENV_WORLDPOS
-			varying vec3 vWorldPosition;
-		#endif
-	#else
-		varying vec3 vWorldPosition;
-	#endif
 	void main() {
 	`);
 
@@ -43,31 +36,13 @@ export function onBeforeCompile( shader ) {
 	`);
 
 	shader.fragmentShader = shader.fragmentShader.replace('void main() {', `
-	#ifdef FLAT_SHADED
-	varying vec3 vNormal;
-	#endif
 	flat varying float instanceID;
-	uniform mat4 modelViewMatrix;
-	#ifdef USE_ENVMAP
-	#ifndef ENV_WORLDPOS
-	varying vec3 vWorldPosition;
-	#endif
-	#else
-	varying vec3 vWorldPosition;
-	#endif
-	#ifndef OBJECTSPACE_NORMALMAP
-	uniform mat3 normalMatrix;
-	#endif
 	void main() {
-		#include <normal_fragment_begin>
-		vec4 posInView = modelViewMatrix * vec4(vWorldPosition, 1.0);
-		posInView /= posInView[3];
-		vec3 VinView = normalize(-posInView.xyz);
-		if (instanceID == 1. && dot(VinView, vNormal) > .3) discard;
-`);
+		if (instanceID == 1. && gl_FrontFacing) discard;
+	`);
 		
 	shader.fragmentShader = shader.fragmentShader.replace('vec4 diffuseColor = vec4( diffuse, opacity );', `
-	vec4 diffuseColor = vec4(mix(vec3(0.), vec3(1.), instanceID), opacity);
+		vec4 diffuseColor = vec4(mix(vec3(0.), vec3(1.), instanceID), opacity);
 	`);
 
 }
