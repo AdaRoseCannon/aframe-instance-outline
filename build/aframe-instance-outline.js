@@ -178,6 +178,13 @@ var AFRAME_OUTLINE = (function (exports, three) {
 
 	}
 
+	const mat = new THREE.MeshBasicMaterial({
+		onBeforeCompile: onBeforeCompile,
+		side: THREE.DoubleSide,
+		transparent: false,
+		blending: THREE.AdditiveBlending
+	});
+
 	const tempMatrix = new THREE.Matrix4().makeScale(1,1,1);
 	function makeOutline(object) {
 		const after = [];
@@ -186,28 +193,24 @@ var AFRAME_OUTLINE = (function (exports, three) {
 				(o instanceof THREE.Mesh) &&
 				!(o instanceof THREE.InstancedMesh || o instanceof InstancedSkinnedMesh)
 			) {
-				const mat = new THREE.MeshBasicMaterial({
-					color: o.material.color,
-					onBeforeCompile: onBeforeCompile,
-					side: THREE.DoubleSide,
-					transparent: false,
-					blending: THREE.AdditiveBlending
+
+				after.push(() => {
+					const newMesh = o instanceof THREE.SkinnedMesh ?
+						new InstancedSkinnedMesh(o.geometry, mat, 2):
+						new THREE.InstancedMesh(o.geometry, mat, 2);
+					
+					tempMatrix.compose(o.position, o.quaternion, o.scale);
+					newMesh.setMatrixAt(0, tempMatrix);
+					newMesh.setMatrixAt(1, tempMatrix);
+
+					const children = o.parent.children;
+					const index = children.indexOf(o);
+
+					newMesh.children = o.children;
+					newMesh.parent = o.parent;
+					children[index] = newMesh;
+					
 				});
-				const newMesh = o instanceof THREE.SkinnedMesh ?
-					new InstancedSkinnedMesh(o.geometry, mat, 2):
-					new THREE.InstancedMesh(o.geometry, mat, 2);
-
-				o.updateMatrixWorld();
-				newMesh.setMatrixAt(0, tempMatrix);
-				newMesh.setMatrixAt(1, tempMatrix);
-
-				const array = o.parent.children;
-				const index = array.indexOf(o);
-
-				newMesh.children = o.children;
-				newMesh.parent = o.parent;
-
-				after.push(() => array[index] = newMesh);
 			}
 		});
 		for (const fn of after) fn();
